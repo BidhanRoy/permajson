@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { TextAreaContainer, ButtonContainer, KeyFileContainer } from './Containers.js';
+import { useEffect, useState } from 'react';
+import { TextAreaContainer, ButtonContainer, renderNotConnectedContainer } from './Containers.js';
 import './App.css';
 
 const App = () => {
   const [inputValue, setInputValue] = useState('{}');
+  const [walletAddress, setWalletAddress] = useState(null);
 
   const onInputChange = (event) => {
     const { value } = event.target;
@@ -28,11 +29,47 @@ const App = () => {
     }
   }
 
+
+  const isWalletConnected = async () => {
+    try {
+      const { arweaveWallet } = window;
+      console.log('arweaveWallet ', arweaveWallet);
+
+      if (arweaveWallet) {
+        console.log("Wallet found!");
+
+        const address = await arweaveWallet.getActiveAddress()
+
+        console.log('Connected with address:', address);
+
+        setWalletAddress(address.toString());
+      }
+    } catch (error) {
+      console.error('Got this error: ', error);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('load', async (event) => {
+      await isWalletConnected();
+    });
+
+  }, []);
+
+  useEffect(() => {
+    if (!walletAddress) {
+        return;
+    }
+
+    console.log('refresh!')
+  }, [walletAddress]);
+
+
   return (
     <div className="App-body">
-      {TextAreaContainer(inputValue, onInputChange)}
-      {ButtonContainer(validateJson)}
-      {KeyFileContainer()}
+      {walletAddress && TextAreaContainer(inputValue, onInputChange)}
+      {walletAddress && ButtonContainer(validateJson)}
+      {!walletAddress && renderNotConnectedContainer()}
     </div>
   );
 }

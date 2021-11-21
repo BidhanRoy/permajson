@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 export const TextAreaContainer = (inputValue, onInputChange) => {
     return (
         <textarea
@@ -29,39 +27,23 @@ export const ButtonContainer = (validateJson) => {
     )
 };
 
-export const KeyFileContainer = () => {
-    const [files, setFilesValue] = useState([]);
+const connectWallet = async () => {
+    const { arweaveWallet } = window;
+    console.log('wallet ', arweaveWallet)
 
+    if (arweaveWallet) {
+        await arweaveWallet.connect(["ACCESS_ADDRESS"])
+        
+        const walletAddress = await arweaveWallet.getActiveAddress()
+        console.log('Wallet address ', walletAddress)
+    }
+  };
 
-    const onInputChange = (event) => {
-        const { value } = event.target;
-
-
-        const fs = require('fs')
-        fs.readFile(value, 'utf8', (err, jsonString) => {
-            if (err) {
-                console.log("File read failed:", err)
-                return
-            }
-            console.log('File data:', jsonString)
-        })
-
-
-        const jsonValue = JSON.parse(value);
-        console.log('file value ', jsonValue)
-        setFilesValue(jsonValue);
-    };
-
-    return (
-        <div>
-            <input
-                type="file"
-                id="file"
-                onChange={onInputChange}
-            >
-            </input>
-            <button>upload</button>
-        </div>
-
-    )
-};
+export const renderNotConnectedContainer = () => (
+    <button
+        className="cta-button connect-wallet-button"
+        onClick={connectWallet}
+    >
+        Connect to Wallet
+    </button>
+);
