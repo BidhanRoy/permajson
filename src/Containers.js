@@ -1,4 +1,9 @@
-export const TextAreaContainer = (inputValue, onInputChange) => {
+export const TextAreaContainer = (inputValue, setInputValue) => {
+    const onInputChange = (event) => {
+        const { value } = event.target;
+        setInputValue(value);
+    };
+
     return (
         <textarea
             className="textarea"
@@ -14,7 +19,25 @@ export const TextAreaContainer = (inputValue, onInputChange) => {
     )
 };
 
-export const ButtonContainer = (validateJson) => {
+export const ButtonContainer = (inputValue, setInputValue) => {
+    const validateJson = async () => {
+        console.log('validating...', inputValue)
+
+        try {
+            var parsedInputJson = JSON.parse(inputValue);
+            if (parsedInputJson && typeof parsedInputJson === "object") {
+                console.log('valid json! ', parsedInputJson)
+                setInputValue(JSON.stringify(parsedInputJson, null, 2))
+
+                return parsedInputJson;
+            }
+        }
+        catch (e) {
+            console.log('invalid json')
+            alert('Invalid Json String!')
+        }
+    }
+
     return (
         <button
             type="button"
@@ -27,22 +50,23 @@ export const ButtonContainer = (validateJson) => {
     )
 };
 
-const connectWallet = async () => {
+const connectWallet = async (setWalletAddress) => {
     const { arweaveWallet } = window;
     console.log('wallet ', arweaveWallet)
 
     if (arweaveWallet) {
         await arweaveWallet.connect(["ACCESS_ADDRESS"])
-        
-        const walletAddress = await arweaveWallet.getActiveAddress()
-        console.log('Wallet address ', walletAddress)
-    }
-  };
 
-export const renderNotConnectedContainer = () => (
+        const address = await arweaveWallet.getActiveAddress()
+        setWalletAddress(address.toString())
+        console.log('Wallet address ', address)
+    }
+};
+
+export const renderNotConnectedContainer = (walletAddress, setWalletAddress) => (
     <button
         className="cta-button connect-wallet-button"
-        onClick={connectWallet}
+        onClick={() => connectWallet(setWalletAddress)}
     >
         Connect to Wallet
     </button>

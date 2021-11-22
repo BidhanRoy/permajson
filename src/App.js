@@ -6,30 +6,6 @@ const App = () => {
   const [inputValue, setInputValue] = useState('{}');
   const [walletAddress, setWalletAddress] = useState(null);
 
-  const onInputChange = (event) => {
-    const { value } = event.target;
-    setInputValue(value);
-  };
-
-  const validateJson = async () => {
-    console.log('validating...', inputValue)
-
-    try {
-      var parsedInputJson = JSON.parse(inputValue);
-      if (parsedInputJson && typeof parsedInputJson === "object") {
-        console.log('valid json! ', parsedInputJson)
-        setInputValue(JSON.stringify(parsedInputJson, null, 2))
-
-        return parsedInputJson;
-      }
-    }
-    catch (e) {
-      console.log('invalid json')
-      alert('Invalid Json String!')
-    }
-  }
-
-
   const isWalletConnected = async () => {
     try {
       const { arweaveWallet } = window;
@@ -49,6 +25,7 @@ const App = () => {
     }
   };
 
+  // Check if wallet is connected on page load.
   useEffect(() => {
     window.addEventListener('load', async (event) => {
       await isWalletConnected();
@@ -56,9 +33,10 @@ const App = () => {
 
   }, []);
 
+  // Check if walletAddress variable has been updated.
   useEffect(() => {
     if (!walletAddress) {
-        return;
+      return;
     }
 
     console.log('refresh!')
@@ -67,9 +45,9 @@ const App = () => {
 
   return (
     <div className="App-body">
-      {walletAddress && TextAreaContainer(inputValue, onInputChange)}
-      {walletAddress && ButtonContainer(validateJson)}
-      {!walletAddress && renderNotConnectedContainer()}
+      {walletAddress && TextAreaContainer(inputValue, setInputValue)}
+      {walletAddress && ButtonContainer(inputValue, setInputValue)}
+      {!walletAddress && renderNotConnectedContainer(walletAddress, setWalletAddress)}
     </div>
   );
 }
